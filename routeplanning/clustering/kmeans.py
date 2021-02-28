@@ -179,9 +179,9 @@ class KMeansCluster():
                     best_var = new_var
                     self._best_clusters = self._clusters
             
-            print(i, best_var)
+        self._plot_clusters()
 
-            self._plot_clusters()
+        return self.best_clusters
 
     @staticmethod
     def average_coord(nodes):
@@ -228,7 +228,7 @@ class KMeansCluster():
 
     @property
     def best_clusters(self):
-        return self.best_clusters
+        return self._best_clusters
 
 class MockClusterGenerator():
     """
