@@ -308,4 +308,4 @@ class MockClusterGenerator():
 
     @property
     def nodes(self):
-        return [tuple(node) for cluster in self._clusters for node in cluster]
+        return [tuple(node) for cluster in self._clusters for node in self._clusters[cluster]]
