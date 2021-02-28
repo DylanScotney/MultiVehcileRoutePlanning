@@ -21,7 +21,7 @@ class KMeansCluster():
             variance
     """
 
-    def __init__(self, k, nodes):
+    def __init__(self, k, nodes, seed=None):
         """
         Instantiates a new instance of KMeansCluster
         """
@@ -29,6 +29,7 @@ class KMeansCluster():
         self.nodes = nodes
         self._clusters = {}
         self._best_clusters = {}
+        self.seed = seed
     
     def _assign_initial_clusters(self):
         """
@@ -81,6 +82,11 @@ class KMeansCluster():
         Reassigns cluster location to the mean postion of coords in the
         cluster.
 
+        Returns:
+            True/False to illustrate if the clustering algorithm has 
+            finished. Will return False if at least one cluster centre
+            point has been updated.
+
         To Do:
             - Improve efficency for when large number of new clusters
             are assigned
@@ -130,7 +136,7 @@ class KMeansCluster():
         Scatter plots each cluster in a different colour
 
         To Do:
-        Generalise for multple dimensions
+        - Generalise for multple dimensions
         """
 
         for cluster in self._best_clusters:
@@ -150,6 +156,8 @@ class KMeansCluster():
         """
 
         best_var = 0.0
+        random.seed(self.seed)
+        np.random.seed(self.seed)
 
         for i in range(iters):
             
@@ -255,12 +263,21 @@ class MockClusterGenerator():
         self.x = x
         self.y = y
         self.stddev = stddev
-        self.seed = seed
         self._clusters = dict()
         self._nodes = set()
+        self.seed = seed
 
     def generate(self, plot=False):
+        """
+        Generates the clusters
+
+        Args:
+            plot(``bool``, optional): plots the clusters using pyplot
+        """
         
+        random.seed(self.seed)
+        np.random.seed(self.seed)
+
         for _ in range(self.num_clusters):
 
             # get random unique coord for num_clusters
@@ -272,7 +289,10 @@ class MockClusterGenerator():
             self._clusters[coords] = set()                
             
             # assign normally distributed nodes to each cluster
-            self._clusters[coords] += [coords + np.random.normal(0, self.stddev, size=(self.nodes_per_cluster, 2))]
+            nodes = np.random.normal(0, self.stddev, size=(self.nodes_per_cluster, 2))
+
+            for node in nodes:
+                self._clusters[coords].add(tuple(np.add(node, coords)))
 
         if plot:
             for cluster in self._clusters:
@@ -280,7 +300,7 @@ class MockClusterGenerator():
                 x = [coords[0] for coords in nodes]
                 y = [coords[1] for coords in nodes]
                 plt.scatter(x, y)
-                plt.show()
+            plt.show()
 
     @property
     def clusters(self):

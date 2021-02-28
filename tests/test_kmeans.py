@@ -9,7 +9,6 @@ def test_num_nodes():
 
     assert kmeans.num_nodes == 4
 
-
 def test_assign_intial_clusters():
     nodes = [(1,2), (1,3), (1,4), (4,5)]
     kmeans = KMeansCluster(3, nodes)
