@@ -7,7 +7,13 @@ class Sweeper():
     A class that creates a simple vehicle dispatch route using the 
     Gillet Miller Sweep approach.
 
-    This is used for initial estimations in the genetic algorithm.
+    This is a candidate for initial population selection in the
+    genetic algorithm.
+
+    Example Usage:
+    >>> sweeper = Sweeper(depot, nodes)
+    ... sweeper.sort_nodes()
+    ... sweeper.plot_route()
 
     """
 
@@ -29,24 +35,20 @@ class Sweeper():
         sweep around self.depot
         """
 
-        self.route.add((0.0, self.depot))
-        self.route.add((2 * np.pi, self.depot))
-
         for node in self.nodes:
             angle = self.calculate_angle(self.depot, node)
             self.route.add((angle, node))
 
-        self.route = sorted(self.route, key=lambda x: x[0])  
+        self.route = set(sorted(self.route, key=lambda x: x[0]))
 
     def plot_route(self):
         """
         Plots the ordered route starting and ending at the depot
         """    
 
-        plt.scatter(self.depot[0], self.depot[1])
         prev_node = self.depot
 
-        for _, node in self.route: 
+        for _, node in self.route_with_depot: 
             plt.plot([prev_node[0], node[0]], [prev_node[1], node[1]])
             plt.scatter(node[0], node[1])
             prev_node = node
@@ -79,13 +81,25 @@ class Sweeper():
                 usually the depot
             node2(``list``): coords of the second node.
         """
+        
         node1, node2 = list(node1), list(node2)
-        xDiff = node1[0] - node2[0]
-        yDiff = node1[1] - node2[1]
+        xDiff = node2[0] - node1[0]
+        yDiff = node2[1] - node1[1]
 
-        if yDiff == 0:
+        if node1[1] == node2[1]:
             return np.pi if node1[0] > node2[0] else 0
-        elif yDiff > 0:
-            return -1 * math.atan2(yDiff, xDiff)
+        elif node2[1] > node1[1]:
+            return math.atan2(yDiff, xDiff)
         else:
-            return np.pi + math.atan2(yDiff, xDiff)
+            return 2 * np.pi + math.atan2(yDiff, xDiff)
+
+    @property
+    def route_with_depot(self):
+        """
+        Constructs the route with depot as start and end points
+        """
+        route = self.route
+        route.add((0, self.depot))
+        route.add((2 * np.pi, self.depot))
+
+        return sorted(route, key=lambda x: x[0])  
